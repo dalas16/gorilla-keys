@@ -1,0 +1,14 @@
+# Binary
+genkeys
+*.o
+
+# Wallet files and user-specific data
+wallet.dat
+.gorilla_wallets/
+*.pem
+*.key
+
+# editor/OS files
+.vscode/
+*.swp
+.DS_Store
