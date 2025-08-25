@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <stdint.h>
 
-/* ------------------ Keccak-256 Implementation ------------------ */
+
 #define KECCAK_ROUNDS 24
 #define KECCAK_STATE_SIZE 25
 
@@ -39,7 +39,7 @@ static void keccakf(uint64_t st[25]) {
     uint64_t t, bc[5];
 
     for (round = 0; round < KECCAK_ROUNDS; round++) {
-        // Theta
+      
         for (i = 0; i < 5; i++)
             bc[i] = st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20];
 
@@ -49,7 +49,7 @@ static void keccakf(uint64_t st[25]) {
                 st[j + i] ^= t;
         }
 
-        // Rho and Pi
+  
         t = st[1];
         for (i = 0; i < 24; i++) {
             j = keccakf_piln[i];
@@ -58,7 +58,7 @@ static void keccakf(uint64_t st[25]) {
             t = bc[0];
         }
 
-        // Chi
+
         for (j = 0; j < 25; j += 5) {
             for (i = 0; i < 5; i++)
                 bc[i] = st[j + i];
@@ -66,7 +66,7 @@ static void keccakf(uint64_t st[25]) {
                 st[j + i] ^= (~bc[(i + 1) % 5]) & bc[(i + 2) % 5];
         }
 
-        // Iota
+ 
         st[0] ^= keccakf_rndc[round];
     }
 }
@@ -103,9 +103,9 @@ static void keccak(const uint8_t *in, int inlen, uint8_t *md, int mdlen) {
 void keccak256(const uint8_t *in, int inlen, uint8_t *md) {
     keccak(in, inlen, md, 32);
 }
-/* --------------------------------------------------------------- */
 
-// Helper: hex encoding
+
+
 void hex_encode(const unsigned char *data, size_t len, char *out) {
     for (size_t i = 0; i < len; i++) {
         sprintf(out + (i * 2), "%02x", data[i]);
@@ -114,16 +114,18 @@ void hex_encode(const unsigned char *data, size_t len, char *out) {
 }
 
 int main() {
-    // Step 1: Create secp256k1 context
+
+
+
     secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
 
-    // Step 2: Generate private key
+   
     unsigned char privkey[32];
     do {
         RAND_bytes(privkey, sizeof(privkey));
     } while (!secp256k1_ec_seckey_verify(ctx, privkey));
 
-    // Step 3: Derive public key
+
     secp256k1_pubkey pubkey;
     if (!secp256k1_ec_pubkey_create(ctx, &pubkey, privkey)) {
         fprintf(stderr, "Error: failed to create public key.\n");
@@ -135,14 +137,14 @@ int main() {
     size_t pubkey_len = 65;
     secp256k1_ec_pubkey_serialize(ctx, pubkey_serialized, &pubkey_len, &pubkey, SECP256K1_EC_UNCOMPRESSED);
 
-    // Step 4: Hash public key → Ethereum address
+ 
     unsigned char hash[32];
     keccak256(pubkey_serialized + 1, 64, hash);
 
     unsigned char address[20];
     memcpy(address, hash + 12, 20);
 
-    // Convert to hex strings
+
     char priv_hex[65], pub_hex[129], addr_hex[43];
     hex_encode(privkey, 32, priv_hex);
     hex_encode(pubkey_serialized + 1, 64, pub_hex);
@@ -152,12 +154,12 @@ int main() {
     hex_encode(address, 20, tmp);
     strncat(addr_hex, tmp, sizeof(addr_hex) - strlen(addr_hex) - 1);
 
-    // Print to console
+
     printf("Private Key: 0x%s\n", priv_hex);
     printf("Public Key: 0x%s\n", pub_hex);
     printf("Address: %s\n", addr_hex);
 
-    // Step 5: Save to ~/.gorilla_wallets/wallet.dat
+
     const char *home = getenv("HOME");
     if (!home) {
         fprintf(stderr, "Error: HOME environment variable not set.\n");
@@ -169,9 +171,9 @@ int main() {
     char folderpath[512];
     snprintf(folderpath, sizeof(folderpath), "%s/.gorilla_wallets", home);
 
-    mkdir(folderpath, 0777); // ignore error if already exists
+    mkdir(folderpath, 0777);
 
-    // Build full file path safely
+
     char filepath[1024]; // big enough
     int written = snprintf(filepath, sizeof(filepath), "%s/wallet.dat", folderpath);
     if (written < 0 || written >= (int)sizeof(filepath)) {
@@ -180,7 +182,7 @@ int main() {
     return 1;
     }
 
-    // Open file for writing
+
     FILE *f = fopen(filepath, "w");
     if (!f) {
         fprintf(stderr, "Error: could not open %s for writing.\n", filepath);
@@ -188,7 +190,7 @@ int main() {
         return 1;
     }
 
-    // Write JSON content
+
     fprintf(f, "{\n");
     fprintf(f, "  \"address\": \"%s\",\n", addr_hex);
     fprintf(f, "  \"private_key\": \"0x%s\",\n", priv_hex);
