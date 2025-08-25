@@ -1,19 +1,30 @@
-# Gorilla Keys 🔑
+# Makefile for Gorilla Keys 🔑
 
-A lightweight C tool to generate secp256k1 Ethereum-compatible keypairs and save them in a simple JSON wallet file.
+CC = gcc
+CFLAGS = -Wall -Wextra -O2
+LDFLAGS = -lssl -lcrypto -lsecp256k1
+SRC_DIR = src
+BUILD_DIR = bin
 
-## Features
-- Generates a valid secp256k1 private key
-- Derives the uncompressed public key
-- Computes the Ethereum-style address (Keccak-256)
-- Saves wallet to `~/.gorilla_wallets/wallet.dat`
+# List of programs
+PROGS = genkeys encryptwallet decryptwallet removewallet
 
-## Build
+all: $(PROGS)
 
-Dependencies:
-- GCC or Clang
-- OpenSSL (`libssl-dev`)
-- libsecp256k1 (`libsecp256k1-dev`)
+# Build each program
+genkeys:
+	$(CC) $(CFLAGS) $(SRC_DIR)/genkeys.c -o $(BUILD_DIR)/genkeys $(LDFLAGS)
 
-```bash
-make
+encryptwallet:
+	$(CC) $(CFLAGS) $(SRC_DIR)/encryptwallet.c -o $(BUILD_DIR)/encryptwallet $(LDFLAGS)
+
+decryptwallet:
+	$(CC) $(CFLAGS) $(SRC_DIR)/decryptwallet.c -o $(BUILD_DIR)/decryptwallet $(LDFLAGS)
+
+removewallet:
+	$(CC) $(CFLAGS) $(SRC_DIR)/removewallet.c -o $(BUILD_DIR)/removewallet $(LDFLAGS)
+
+.PHONY: clean all
+
+clean:
+	rm -rf $(BUILD_DIR)/*

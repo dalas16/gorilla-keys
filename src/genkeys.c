@@ -167,14 +167,14 @@ int main() {
         return 1;
     }
 
-    // Build folder path
+  
     char folderpath[512];
     snprintf(folderpath, sizeof(folderpath), "%s/.gorilla_wallets", home);
 
     mkdir(folderpath, 0777);
 
 
-    char filepath[1024]; // big enough
+    char filepath[1024];
     int written = snprintf(filepath, sizeof(filepath), "%s/wallet.dat", folderpath);
     if (written < 0 || written >= (int)sizeof(filepath)) {
     fprintf(stderr, "Error: wallet path too long.\n");
