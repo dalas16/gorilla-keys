@@ -7,22 +7,21 @@ SECP_FLAGS = -lsecp256k1
 SRC_DIR = src
 BUILD_DIR = bin
 
-
-PROGS = genkeys encryptwallet decryptwallet removewallet
+PROGS = genkeys encryptwallet decryptwallet removewallet sign
 
 all: $(BUILD_DIR) $(PROGS)
-
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-
 %: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $< -o $(BUILD_DIR)/$@ $(LDFLAGS)
 
-
 genkeys: $(SRC_DIR)/genkeys.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $< -o $(BUILD_DIR)/$@ $(LDFLAGS) $(SECP_FLAGS)
+
+sign: $(SRC_DIR)/sign.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $< -o $(BUILD_DIR)/$@ $(SECP_FLAGS)
 
 .PHONY: clean all
 
